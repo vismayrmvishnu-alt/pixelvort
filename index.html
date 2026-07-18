@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PV Studios | Digital Experiences</title>
+    <meta name="description" content="We build premium digital experiences. Cinematic design, digital development, motion, animation, and next-generation technologies.">
+    
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@200;300;400;500;700;900&family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Premium 3D Preloader Screen -->
+    <div id="loader-screen">
+        <div class="loader-content">
+            <div class="loader-logo">
+                <img src="assets/logo.png" alt="PV Studios Logo" class="loader-logo-img">
+            </div>
+            
+            <div class="loader-spinner-container">
+                <svg class="loader-spinner" viewBox="0 0 100 100">
+                    <circle class="spinner-bg" cx="50" cy="50" r="45"></circle>
+                    <circle class="spinner-path" cx="50" cy="50" r="45"></circle>
+                </svg>
+                <div class="loader-percentage" id="loader-percent">0%</div>
+            </div>
+            
+            <div class="loader-status" id="loader-status">Initializing WebGL Engine...</div>
+            <div class="loader-substatus">Compiling volumetric lighting...</div>
+        </div>
+    </div>
+
+    <!-- Unified Real-time WebGL Canvas (Hero Models + Particles) -->
+    <canvas id="webgl-canvas"></canvas>
+
+    <!-- Glowing Background Atmosphere (Acts as fallback/depth layer) -->
+    <div class="ambient-glows">
+        <div class="glow-orange-center"></div>
+        <div class="glow-orange-left"></div>
+        <div class="glow-orange-right"></div>
+    </div>
+
+    <!-- Page Scroll Container -->
+    <div class="page-scroll-container">
+        <!-- Top Navigation (Fixed overlay) -->
+        <header class="glass-nav">
+            <div class="nav-container">
+                <a href="#" class="logo-area" id="nav-logo">
+                    <img src="assets/logo.png" alt="PV Studios Logo" class="logo-img">
+                    <span class="logo-text">STUDIOS</span>
+                </a>
+                <nav class="nav-links">
+                    <a href="#home" class="nav-item active">Home</a>
+                    <a href="#work" class="nav-item">Work</a>
+                    <a href="#services" class="nav-item">Services</a>
+                    <a href="#projects" class="nav-item">Projects</a>
+                    <a href="#studio" class="nav-item">Studio</a>
+                    <a href="#contact" class="nav-item">Contact</a>
+                </nav>
+                <div class="nav-cta">
+                    <button class="btn-start-project" id="btn-start">
+                        <span>Start Project</span>
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Section 1: Hero (Home) -->
+        <section id="home" class="hero-section">
+            <!-- Foreground Hero Content -->
+            <main class="hero-content">
+                <div class="hero-text-block">
+                    <span class="text-we-build">WE BUILD</span>
+                    <h1 class="title-main">
+                        <span class="title-row-white">DIGITAL</span>
+                        <span class="title-row-gradient">EXPERIENCES</span>
+                    </h1>
+                    
+                    <!-- Tiny logo eye separator inspired by reference -->
+                    <div class="eye-separator">
+                        <span class="line left-line"></span>
+                        <div class="eye-icon-wrapper">
+                            <svg class="eye-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M10 50C10 50 28 20 50 20C72 20 90 50 90 50C90 50 72 80 50 80C28 80 10 50 10 50Z" stroke="#F59A23" stroke-width="4" stroke-linejoin="round"/>
+                                <circle cx="50" cy="50" r="16" stroke="#F59A23" stroke-width="4"/>
+                                <circle cx="50" cy="50" r="6" fill="#FFC15A"/>
+                            </svg>
+                        </div>
+                        <span class="line right-line"></span>
+                    </div>
+
+                    <div class="hero-subtitles">
+                        <span class="sub-item">Design.</span>
+                        <span class="sub-item">Develop.</span>
+                        <span class="sub-item">Animate.</span>
+                        <span class="sub-item">Create.</span>
+                    </div>
+
+                    <div class="cta-area">
+                        <button class="btn-explore" id="btn-explore">
+                            <span class="btn-text">EXPLORE OUR WORK</span>
+                            <span class="arrow-icon">↗</span>
+                        </button>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Feature Lists Overlaid on Left and Right sides -->
+            <div class="side-features">
+                <!-- Left Features -->
+                <div class="features-column left-column">
+                    <div class="feature-item" data-target="left">
+                        <div class="feature-num">01</div>
+                        <div class="feature-info">
+                            <h3 class="feature-title">Creative Design</h3>
+                            <p class="feature-desc">Branding that speaks your vision.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item" data-target="left">
+                        <div class="feature-num">02</div>
+                        <div class="feature-info">
+                            <h3 class="feature-title">Digital Development</h3>
+                            <p class="feature-desc">Clean code. Powerful solutions.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item" data-target="left">
+                        <div class="feature-num">03</div>
+                        <div class="feature-info">
+                            <h3 class="feature-title">Motion & Animation</h3>
+                            <p class="feature-desc">Bringing ideas to life.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Features -->
+                <div class="features-column right-column">
+                    <div class="feature-item" data-target="center">
+                        <div class="feature-num">04</div>
+                        <div class="feature-info">
+                            <h3 class="feature-title">Visual Effects & CGI</h3>
+                            <p class="feature-desc">Pixel perfect. Beyond reality.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item" data-target="right">
+                        <div class="feature-num">05</div>
+                        <div class="feature-info">
+                            <h3 class="feature-title">AI & Future Tech</h3>
+                            <p class="feature-desc">Intelligent solutions for tomorrow.</p>
+                        </div>
+                    </div>
+                    <div class="feature-item" data-target="center">
+                        <div class="feature-num">06</div>
+                        <div class="feature-info">
+                            <h3 class="feature-title">Support & Growth</h3>
+                            <p class="feature-desc">We build. We support. We grow.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Status Bar -->
+            <footer class="bottom-bar">
+                <div class="bottom-left" id="bottom-showreel">
+                    <div class="play-button-wrapper">
+                        <div class="play-button">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="showreel-text">
+                        <span class="showreel-title">WATCH SHOWREEL</span>
+                        <span class="showreel-sub">See our work in action</span>
+                    </div>
+                </div>
+                
+                <div class="bottom-center" id="bottom-scroll">
+                    <span class="scroll-text">SCROLL TO DISCOVER</span>
+                    <div class="scroll-indicator">
+                        <div class="mouse-wheel"></div>
+                    </div>
+                </div>
+                
+                <div class="bottom-right">
+                    <div class="globe-icon-wrapper">
+                        <svg class="globe-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                    </div>
+                    <div class="location-text">
+                        <span class="loc-main">BASED IN INDIA</span>
+                        <span class="loc-sub">Working Worldwide</span>
+                    </div>
+                </div>
+            </footer>
+        </section>
+
+        <!-- Section 2: Selected Work (With high-resolution imagery) -->
+        <section id="work" class="work-section">
+            <div class="work-container">
+                <!-- Intro Row (Alternating split) -->
+                <div class="work-intro-row">
+                    <div class="intro-left reveal">
+                        <span class="work-tagline">SELECTED WORK</span>
+                        <h2 class="work-title">
+                            Crafting Digital<br>
+                            <span class="title-row-gradient">Masterpieces</span>
+                        </h2>
+                        <p class="work-desc">
+                            From cinematic visuals to immersive websites, branding, CGI and interactive experiences, every project showcases precision, creativity and innovation.
+                        </p>
+                        <button class="btn-explore-all" id="btn-explore-all">
+                            <span>EXPLORE ALL WORK</span>
+                            <span class="arrow-svg">↗</span>
+                        </button>
+                    </div>
+                    <div class="intro-right reveal">
+                        <!-- Floating Rock Platform Canvas -->
+                        <div class="hero-visual-wrapper">
+                            <div class="visual-glow"></div>
+                            <img src="assets/hero_rock.png" alt="PV Studios Emblem Platform" class="hero-visual-img float-animation-2">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Featured Showcase Card -->
+                <div class="featured-showcase reveal">
+                    <div class="showcase-details">
+                        <span class="showcase-tag">FEATURED SHOWCASE</span>
+                        <h3 class="showcase-headline">
+                            CINEMATIC<br>
+                            <span class="gradient-text-orange">PRODUCTION</span>
+                        </h3>
+                        <p class="showcase-desc">
+                            High-end commercial films, motion graphics, product advertisements, storytelling and cinematic visuals crafted with precision.
+                        </p>
+                        <button class="btn-project-cta" id="btn-showcase-view">
+                            <div class="play-icon-tiny">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                            <span>VIEW PROJECT</span>
+                            <span class="arrow-svg">↗</span>
+                        </button>
+                    </div>
+                    <div class="showcase-media">
+                        <div class="camera-glow"></div>
+                        <img src="assets/showcase_camera.png" alt="Cinematic Studio Camera" class="showcase-img">
+                    </div>
+                </div>
+
+                <!-- 6-Card Portfolio Grid -->
+                <div class="portfolio-grid">
+                    <!-- Card 1: Web Experiences -->
+                    <div class="portfolio-card reveal" style="--delay: 0s;">
+                        <div class="card-icon-area">
+                            <div class="card-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10zM2 12h20"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-image-area">
+                            <div class="card-glow"></div>
+                            <img src="assets/card_web.png" alt="Web Experiences" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h4 class="card-title">WEB EXPERIENCES</h4>
+                            <p class="card-desc">Modern responsive websites with premium UI, immersive animations and seamless interactions.</p>
+                            <button class="btn-card-cta">
+                                <span>VIEW PROJECT</span>
+                                <span class="arrow-svg">↗</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Brand Identity -->
+                    <div class="portfolio-card reveal" style="--delay: 0.1s;">
+                        <div class="card-icon-area">
+                            <div class="card-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-image-area">
+                            <div class="card-glow"></div>
+                            <img src="assets/card_branding.png" alt="Brand Identity" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h4 class="card-title">BRAND IDENTITY</h4>
+                            <p class="card-desc">Logos, visual identity systems, premium stationery and luxury branding mockups.</p>
+                            <button class="btn-card-cta">
+                                <span>VIEW PROJECT</span>
+                                <span class="arrow-svg">↗</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: 3D & CGI Visualization -->
+                    <div class="portfolio-card reveal" style="--delay: 0.2s;">
+                        <div class="card-icon-area">
+                            <div class="card-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                    <path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-image-area">
+                            <div class="card-glow"></div>
+                            <img src="assets/card_cgi.png" alt="3D & CGI Visualization" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h4 class="card-title">3D & CGI VISUALIZATION</h4>
+                            <p class="card-desc">Photorealistic CGI renders, industrial design environments and premium product visualization.</p>
+                            <button class="btn-card-cta">
+                                <span>VIEW PROJECT</span>
+                                <span class="arrow-svg">↗</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Motion Graphics -->
+                    <div class="portfolio-card reveal" style="--delay: 0s;">
+                        <div class="card-icon-area">
+                            <div class="card-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+                                    <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-image-area">
+                            <div class="card-glow"></div>
+                            <img src="assets/card_motion.png" alt="Motion Graphics" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h4 class="card-title">MOTION GRAPHICS</h4>
+                            <p class="card-desc">High-end motion graphics, cinematic VFX, post-production and digital visual storytelling.</p>
+                            <button class="btn-card-cta">
+                                <span>VIEW PROJECT</span>
+                                <span class="arrow-svg">↗</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: AI Solutions -->
+                    <div class="portfolio-card reveal" style="--delay: 0.1s;">
+                        <div class="card-icon-area">
+                            <div class="card-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.44 2.5 2.5 0 0 1 0-3.12 3 3 0 0 1 0-7.88A2.5 2.5 0 0 1 9.5 2zM14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.44 2.5 2.5 0 0 0 0-3.12 3 3 0 0 0 0-7.88A2.5 2.5 0 0 0 14.5 2z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-image-area">
+                            <div class="card-glow"></div>
+                            <img src="assets/card_ai.png" alt="AI Solutions" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h4 class="card-title">AI SOLUTIONS</h4>
+                            <p class="card-desc">AI automation systems, intelligent modular workflows, chatbots and next-generation interfaces.</p>
+                            <button class="btn-card-cta">
+                                <span>VIEW PROJECT</span>
+                                <span class="arrow-svg">↗</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card 6: Game Assets & Environments -->
+                    <div class="portfolio-card reveal" style="--delay: 0.2s;">
+                        <div class="card-icon-area">
+                            <div class="card-icon-wrapper">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M21 12a9 9 0 1 1-9-9 9.75 9.75 0 0 1 9 9z"/>
+                                    <path d="M6 12h4M8 10v4M15 11.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM17 13.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="card-image-area">
+                            <div class="card-glow"></div>
+                            <img src="assets/card_games.png" alt="Game Assets & Environments" class="card-img">
+                        </div>
+                        <div class="card-content">
+                            <h4 class="card-title">GAME ASSETS & ENVIRONMENTS</h4>
+                            <p class="card-desc">High-quality game environments, props, immersive modular maps and character concepts.</p>
+                            <button class="btn-card-cta">
+                                <span>VIEW PROJECT</span>
+                                <span class="arrow-svg">↗</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom CTA Banner -->
+                <div class="bottom-cta-banner reveal">
+                    <div class="cta-banner-left">
+                        <span class="cta-banner-tag">Have a project in mind?</span>
+                        <h2 class="cta-banner-title">Let's create something amazing together.</h2>
+                    </div>
+                    <div class="cta-banner-right">
+                        <button class="btn-cta-banner-start" id="btn-cta-start">
+                            <span>START A PROJECT</span>
+                            <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M5 12h14M12 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Our Services -->
+        <section id="services" class="services-section">
+            <div class="services-container">
+                <!-- Main split row -->
+                <div class="services-row">
+                    <!-- Left Column: Editorial intro -->
+                    <div class="services-left reveal">
+                        <span class="services-tagline">OUR SERVICES</span>
+                        <h2 class="services-title">
+                            WHAT WE<br>
+                            <span class="title-row-gradient">CREATE</span>
+                        </h2>
+                        <p class="services-desc">
+                            We combine creativity, technology and storytelling to design immersive digital experiences, premium brands, cinematic content and interactive products that leave a lasting impression.
+                        </p>
+                        <button class="btn-explore-services" id="btn-explore-services">
+                            <span>EXPLORE SERVICES</span>
+                            <span class="arrow-svg">↗</span>
+                        </button>
+                        
+                        <!-- Navigation dots / scroll indicators -->
+                        <div class="services-nav">
+                            <div class="nav-dots-wrapper">
+                                <div class="nav-dot active" data-index="0"></div>
+                                <div class="nav-dot" data-index="1"></div>
+                                <div class="nav-dot" data-index="2"></div>
+                            </div>
+                            <div class="services-nav-info">
+                                <div class="play-icon-tiny border-accent">
+                                    <svg viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M8 5v14l11-7z"/>
+                                    </svg>
+                                </div>
+                                <div class="approach-text">
+                                    <span class="approach-title">OUR APPROACH</span>
+                                    <span class="approach-desc">Strategy. Design. Create. Deliver.</span>
+                                </div>
+                            </div>
+                            <div class="services-scroll-down">
+                                <span>Scroll to discover more</span>
+                                <span class="down-arrow">↓</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Interactive 3D Service Hub -->
+                    <div class="services-right reveal">
+                        <div class="services-hub-wrapper">
+                            <div class="services-hub-glow"></div>
+                            <canvas id="canvas-services-hub"></canvas>
+                            
+                            <!-- Hotspot Overlays (absolutely positioned on the 6 cubes) -->
+                            <!-- Cube 01: Web Experiences (top center) -->
+                            <div class="hotspot" id="hotspot-web" style="top: 15%; left: 50%;" data-title="WEB EXPERIENCES" data-desc="Next.js & React-powered premium responsive web experiences.">
+                                <span class="hotspot-ring"></span>
+                                <span class="hotspot-dot">01</span>
+                            </div>
+                            <!-- Cube 02: Brand Identity (middle left) -->
+                            <div class="hotspot" id="hotspot-branding" style="top: 34%; left: 28%;" data-title="BRAND IDENTITY" data-desc="Luxury stationery, logos, guidelines, and premium packaging mockups.">
+                                <span class="hotspot-ring"></span>
+                                <span class="hotspot-dot">02</span>
+                            </div>
+                            <!-- Cube 03: Cinematic Production (middle right) -->
+                            <div class="hotspot" id="hotspot-production" style="top: 34%; left: 72%;" data-title="CINEMATIC PRODUCTION" data-desc="Professional cinema studio rendering, lenses, and lighting equipment.">
+                                <span class="hotspot-ring"></span>
+                                <span class="hotspot-dot">03</span>
+                            </div>
+                            <!-- Cube 04: 3D & CGI (bottom right) -->
+                            <div class="hotspot" id="hotspot-cgi" style="top: 66%; left: 72%;" data-title="3D & CGI" data-desc="Mechanical details, robotics model renders, and luxury PBR texturing.">
+                                <span class="hotspot-ring"></span>
+                                <span class="hotspot-dot">04</span>
+                            </div>
+                            <!-- Cube 05: AI Solutions (bottom left) -->
+                            <div class="hotspot" id="hotspot-ai" style="top: 66%; left: 28%;" data-title="AI SOLUTIONS" data-desc="Circuit intelligence AI cubes with floating holographic UI elements.">
+                                <span class="hotspot-ring"></span>
+                                <span class="hotspot-dot">05</span>
+                            </div>
+                            <!-- Cube 06: Game Assets (bottom center) -->
+                            <div class="hotspot" id="hotspot-games" style="top: 80%; left: 50%;" data-title="GAME ASSETS" data-desc="High-fidelity characters, environments, maps, and props.">
+                                <span class="hotspot-ring"></span>
+                                <span class="hotspot-dot">06</span>
+                            </div>
+                            
+                            <!-- Central logo core hotspot -->
+                            <div class="hotspot-core" style="top: 48%; left: 50%;">
+                                <div class="core-active-glow"></div>
+                            </div>
+                            
+                            <!-- Dynamic glassmorphic tooltip card that pops up on hover -->
+                            <div class="services-tooltip" id="services-tooltip">
+                                <div class="tooltip-num">01</div>
+                                <div class="tooltip-content">
+                                    <h4 class="tooltip-title">Web Experiences</h4>
+                                    <p class="tooltip-desc">Next.js & React-powered premium web interfaces.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom statistics bar -->
+                <div class="services-stats-bar reveal">
+                    <!-- Stat 1: Years Experience -->
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </div>
+                        <div class="stat-number-wrapper">
+                            <span class="stat-number">7+</span>
+                            <span class="stat-label">YEARS OF<br>EXPERIENCE</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-divider"></div>
+
+                    <!-- Stat 2: Projects Delivered -->
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M4.5 16.5c-1.5 1.5-2.5 3.5-2.5 3.5s2-1 3.5-2.5M12 5l-8 8v4h4l8-8M12 5l2.5-2.5a2 2 0 0 1 2.8 0l1.7 1.7a2 2 0 0 1 0 2.8L16.5 9.5M12 5l4.5 4.5"/>
+                            </svg>
+                        </div>
+                        <div class="stat-number-wrapper">
+                            <span class="stat-number">250+</span>
+                            <span class="stat-label">PROJECTS<br>DELIVERED</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-divider"></div>
+
+                    <!-- Stat 3: Happy Clients -->
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                        </div>
+                        <div class="stat-number-wrapper">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">HAPPY<br>CLIENTS</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-divider"></div>
+
+                    <!-- Stat 4: Countries Worldwide -->
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                            </svg>
+                        </div>
+                        <div class="stat-number-wrapper">
+                            <span class="stat-number">15+</span>
+                            <span class="stat-label">COUNTRIES<br>WORLDWIDE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Importmap for ES modules -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="main.js"></script>
+</body>
+</html>

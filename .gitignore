@@ -3,3 +3,4 @@ database.json
 package-lock.json
 .gemini/
 otp_preview.txt
+.env

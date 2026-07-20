@@ -10,16 +10,35 @@ const PORT = process.env.PORT || 5000;
 const DB_FILE = path.join(__dirname, 'database.json');
 const PREVIEW_FILE = path.join(__dirname, 'otp_preview.txt');
 
+// Load environment variables from local .env if it exists
+const ENV_FILE = path.join(__dirname, '.env');
+if (fs.existsSync(ENV_FILE)) {
+    try {
+        const envLines = fs.readFileSync(ENV_FILE, 'utf8').split('\n');
+        envLines.forEach(line => {
+            const parts = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
+            if (parts) {
+                const key = parts[1];
+                let val = parts[2] || '';
+                if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1, -1);
+                if (val.startsWith("'") && val.endsWith("'")) val = val.slice(1, -1);
+                process.env[key] = val.trim();
+            }
+        });
+    } catch (err) {
+        console.error('Error reading local .env file:', err);
+    }
+}
+
 // ==========================================================
 // SMTP Configuration for Email OTP Dispatch
 // ==========================================================
-// Fill in your Gmail details below to send real emails:
 const SMTP_CONFIG = {
-    enabled: false,             // Set to true to send real emails!
-    email: 'YOUR_EMAIL@gmail.com',
-    password: 'YOUR_GOOGLE_APP_PASSWORD', // Must be an App Password, not normal password
-    host: 'smtp.gmail.com',
-    port: 587
+    enabled: process.env.SMTP_ENABLED === 'true',
+    email: process.env.SMTP_EMAIL || '',
+    password: process.env.SMTP_PASSWORD || '',
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT) || 587
 };
 
 // Temporary in-memory cache for pending registrations awaiting email verification

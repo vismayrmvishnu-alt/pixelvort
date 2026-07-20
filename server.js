@@ -119,53 +119,6 @@ app.post('/api/login', (req, res) => {
     });
 });
 
-// 3. Google Sign-In Callback Endpoint
-app.post('/api/google-login', (req, res) => {
-    const { username, email, avatar } = req.body;
-
-    if (!email || !username) {
-        return res.status(400).json({ success: false, message: 'Invalid Google profile data.' });
-    }
-
-    const users = readUsers();
-    
-    // Check if user already exists
-    let user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-    if (!user) {
-        // Register new Google user
-        user = {
-            id: crypto.randomBytes(8).toString('hex'),
-            username,
-            email: email.toLowerCase(),
-            avatar: avatar || null,
-            isGoogleUser: true,
-            createdAt: new Date().toISOString()
-        };
-        users.push(user);
-        writeUsers(users);
-    } else {
-        // Update user avatar
-        if (avatar && user.avatar !== avatar) {
-            user.avatar = avatar;
-            writeUsers(users);
-        }
-    }
-
-    return res.status(200).json({
-        success: true,
-        message: 'Google login successful!',
-        token: crypto.randomBytes(16).toString('hex'),
-        user: { 
-            id: user.id, 
-            username: user.username, 
-            email: user.email, 
-            avatar: user.avatar,
-            isGoogleUser: true
-        }
-    });
-});
-
 // Start Server
 app.listen(PORT, () => {
     console.log(`PV Studios Auth Server running at http://localhost:${PORT}`);

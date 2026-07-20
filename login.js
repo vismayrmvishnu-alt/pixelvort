@@ -337,9 +337,6 @@ const AuthController = {
         
         // Form submit
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        
-        // Setup Google Identity Service initialization
-        this.initGoogleAuth();
     },
     
     switchMode(mode) {
@@ -427,76 +424,6 @@ const AuthController = {
             console.error(err);
             this.btnSubmit.removeAttribute('disabled');
             this.showAlert('error', 'Auth server connection offline. Please run "node server.js".');
-        }
-    },
-    
-    initGoogleAuth() {
-        // Wait for Google client SDK script to load
-        const checkGsi = setInterval(() => {
-            if (window.google && window.google.accounts) {
-                clearInterval(checkGsi);
-                this.renderGoogleButton();
-            }
-        }, 100);
-    },
-    
-    renderGoogleButton() {
-        window.google.accounts.id.initialize({
-            client_id: "48384073183-kg8e373m7fm0f62acmoigo7ee92bf7fl.apps.googleusercontent.com", 
-            callback: (resp) => this.handleGoogleCredential(resp)
-        });
-        
-        window.google.accounts.id.renderButton(
-            document.getElementById("google-signin-btn"),
-            { 
-                theme: "dark", 
-                size: "large",
-                width: 320,
-                text: "continue_with",
-                shape: "rectangular"
-            }
-        );
-    },
-    
-    async handleGoogleCredential(response) {
-        this.showAlert('info', 'Decompressing Google ID token payloads...');
-        
-        try {
-            // Decode standard JWT signature to extract payload values
-            const token = response.credential;
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            
-            const profile = JSON.parse(jsonPayload);
-            
-            // Dispatch to server to record registration/login
-            const serverResp = await fetch('http://localhost:5000/api/google-login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    username: profile.name,
-                    email: profile.email,
-                    avatar: profile.picture
-                })
-            });
-            
-            const data = await serverResp.json();
-            
-            if (data.success) {
-                this.showAlert('success', `Welcome back, ${data.user.username}! Redirecting...`);
-                localStorage.setItem('user_session', JSON.stringify(data.user));
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1200);
-            } else {
-                this.showAlert('error', data.message || 'Google account auth refused.');
-            }
-        } catch (err) {
-            console.error(err);
-            this.showAlert('error', 'Error establishing connection with Google services.');
         }
     }
 };

@@ -309,11 +309,17 @@ const GravityField = {
 const AuthController = {
     // Current state variables
     email: '',
+    mode: 'signin', // 'signin' or 'signup'
     
     // DOM elements
     panelCredentials: null,
     panelOtp: null,
     panelDetails: null,
+    
+    tabSignIn: null,
+    tabSignUp: null,
+    groupUsername: null,
+    inputUsername: null,
     
     formLogin: null,
     formOtp: null,
@@ -339,6 +345,11 @@ const AuthController = {
         this.panelOtp = document.getElementById('panel-otp');
         this.panelDetails = document.getElementById('panel-details');
         
+        this.tabSignIn = document.getElementById('tab-signin');
+        this.tabSignUp = document.getElementById('tab-signup');
+        this.groupUsername = document.getElementById('group-username');
+        this.inputUsername = document.getElementById('auth-username');
+        
         this.formLogin = document.getElementById('form-login');
         this.formOtp = document.getElementById('form-otp');
         this.formDetails = document.getElementById('form-details');
@@ -360,6 +371,14 @@ const AuthController = {
         
         if (!this.formLogin) return;
         
+        // Tab toggles
+        if (this.tabSignIn) {
+            this.tabSignIn.addEventListener('click', () => this.switchMode('signin'));
+        }
+        if (this.tabSignUp) {
+            this.tabSignUp.addEventListener('click', () => this.switchMode('signup'));
+        }
+        
         // Form Submit Listeners
         this.formLogin.addEventListener('submit', (e) => this.handleLogin(e));
         this.formOtp.addEventListener('submit', (e) => this.handleVerifyOtp(e));
@@ -367,6 +386,28 @@ const AuthController = {
         
         // OTP Inputs Focus Shift Listeners
         this.setupOtpInputBehavior();
+    },
+    
+    switchMode(mode) {
+        if (this.mode === mode) return;
+        this.mode = mode;
+        
+        this.tabSignIn.classList.toggle('active', mode === 'signin');
+        this.tabSignUp.classList.toggle('active', mode === 'signup');
+        
+        if (mode === 'signup') {
+            this.groupUsername.classList.remove('hidden');
+            this.inputUsername.setAttribute('required', 'true');
+            this.inputUsername.removeAttribute('disabled');
+            this.btnLoginSubmit.querySelector('span').innerText = 'NEXT STEP';
+        } else {
+            this.groupUsername.classList.add('hidden');
+            this.inputUsername.removeAttribute('required');
+            this.inputUsername.setAttribute('disabled', 'true');
+            this.btnLoginSubmit.querySelector('span').innerText = 'SEND CODE';
+        }
+        
+        this.showAlert('', '');
     },
     
     showPanel(activePanel) {
@@ -441,42 +482,76 @@ const AuthController = {
         });
     },
     
-    // Step 1: Submit Credentials & dispatch code
+    // Step 1: Submit Credentials & dispatch code or register
     async handleLogin(e) {
         e.preventDefault();
         
         const emailVal = this.inputEmail.value.trim();
         const passwordVal = this.inputPassword.value;
+        const usernameVal = this.inputUsername ? this.inputUsername.value.trim() : '';
         
-        this.showAlert('info', 'Verifying security credentials...');
-        this.btnLoginSubmit.setAttribute('disabled', 'true');
-        
-        try {
-            const response = await fetch('http://localhost:5000/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: emailVal, password: passwordVal })
-            });
+        if (this.mode === 'signup') {
+            this.showAlert('info', 'Registering customer portal credentials...');
+            this.btnLoginSubmit.setAttribute('disabled', 'true');
             
-            const data = await response.json();
-            this.btnLoginSubmit.removeAttribute('disabled');
-            
-            if (data.success && data.otpSent) {
-                this.email = emailVal; // Cache email
-                this.showAlert('success', 'Access code dispatched to customer logs!');
+            try {
+                const response = await fetch('http://localhost:5000/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: usernameVal, email: emailVal, password: passwordVal })
+                });
                 
-                // Switch panel with animation delay
-                setTimeout(() => {
-                    this.showAlert('', '');
-                    this.showPanel(this.panelOtp);
-                }, 1000);
-            } else {
-                this.showAlert('error', data.message || 'Verification rejected.');
+                const data = await response.json();
+                this.btnLoginSubmit.removeAttribute('disabled');
+                
+                if (data.success) {
+                    this.email = emailVal; // Cache email
+                    this.showAlert('success', 'Account registered! Proceeding to onboarding...');
+                    
+                    // Direct redirect to onboarding details panel (skip OTP for new signups)
+                    setTimeout(() => {
+                        this.showAlert('', '');
+                        this.showPanel(this.panelDetails);
+                    }, 1200);
+                } else {
+                    this.showAlert('error', data.message || 'Registration rejected.');
+                }
+            } catch (err) {
+                console.error(err);
+                this.btnLoginSubmit.removeAttribute('disabled');
+                this.showAlert('error', 'Auth server connection offline. Please run "node server.js".');
             }
-        } catch (err) {
-            console.error(err);
-            this.btnLoginSubmit.removeAttribute('disabled');
-            this.showAlert('error', 'Auth server connection offline. Please run "node server.js".');
+        } else {
+            this.showAlert('info', 'Verifying security credentials...');
+            this.btnLoginSubmit.setAttribute('disabled', 'true');
+            
+            try {
+                const response = await fetch('http://localhost:5000/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailVal, password: passwordVal })
+                });
+                
+                const data = await response.json();
+                this.btnLoginSubmit.removeAttribute('disabled');
+                
+                if (data.success && data.otpSent) {
+                    this.email = emailVal; // Cache email
+                    this.showAlert('success', 'Access code dispatched to customer logs!');
+                    
+                    // Switch panel with animation delay
+                    setTimeout(() => {
+                        this.showAlert('', '');
+                        this.showPanel(this.panelOtp);
+                    }, 1000);
+                } else {
+                    this.showAlert('error', data.message || 'Verification rejected.');
+                }
+            } catch (err) {
+                console.error(err);
+                this.btnLoginSubmit.removeAttribute('disabled');
+                this.showAlert('error', 'Auth server connection offline. Please run "node server.js".');
+            }
         }
     },
     

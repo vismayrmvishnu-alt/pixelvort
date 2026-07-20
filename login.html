@@ -47,9 +47,22 @@
                 <p class="login-subtitle">Enter your credentials to access the console</p>
             </div>
 
+            <!-- Tab Toggles -->
+            <div class="login-tabs">
+                <button class="login-tab active" id="tab-signin">SIGN IN</button>
+                <button class="login-tab" id="tab-signup">CREATE ACCOUNT</button>
+            </div>
+
             <!-- Panel 1: Credentials Form -->
             <div id="panel-credentials" class="auth-panel">
                 <form id="form-login" class="login-form">
+                    <!-- Username field (hidden on Sign In, visible on Sign Up) -->
+                    <div class="input-group hidden" id="group-username">
+                        <input type="text" id="auth-username">
+                        <label for="auth-username">Username</label>
+                        <span class="input-line"></span>
+                    </div>
+
                     <!-- Email field -->
                     <div class="input-group">
                         <input type="email" id="auth-email" required>

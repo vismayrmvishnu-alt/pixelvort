@@ -310,6 +310,9 @@ const AuthController = {
     // Current state variables
     email: '',
     mode: 'signin', // 'signin' or 'signup'
+    captchaVerified: false,
+    isDraggingCaptcha: false,
+    captchaDragStartX: 0,
     
     // DOM elements
     panelCredentials: null,
@@ -331,14 +334,20 @@ const AuthController = {
     inputPassword: null,
     otpBoxes: [],
     
+    // Staging Profile details
+    inputName: null,
     inputPhone: null,
-    inputCompany: null,
-    inputInterest: null,
-    inputBrief: null,
+    inputAddress: null,
     
     btnLoginSubmit: null,
     btnOtpSubmit: null,
     btnDetailsSubmit: null,
+    
+    // Captcha slider elements
+    captchaWrapper: null,
+    captchaTrack: null,
+    captchaHandle: null,
+    captchaText: null,
     
     init() {
         this.panelCredentials = document.getElementById('panel-credentials');
@@ -360,14 +369,18 @@ const AuthController = {
         this.inputPassword = document.getElementById('auth-password');
         this.otpBoxes = Array.from(document.querySelectorAll('.otp-box'));
         
+        this.inputName = document.getElementById('details-name');
         this.inputPhone = document.getElementById('details-phone');
-        this.inputCompany = document.getElementById('details-company');
-        this.inputInterest = document.getElementById('details-interest');
-        this.inputBrief = document.getElementById('details-brief');
+        this.inputAddress = document.getElementById('details-address');
         
         this.btnLoginSubmit = document.getElementById('btn-login-submit');
         this.btnOtpSubmit = document.getElementById('btn-otp-submit');
         this.btnDetailsSubmit = document.getElementById('btn-details-submit');
+        
+        this.captchaWrapper = document.getElementById('captcha-wrapper');
+        this.captchaTrack = document.querySelector('.captcha-slider-track');
+        this.captchaHandle = document.getElementById('captcha-handle');
+        this.captchaText = document.getElementById('captcha-text');
         
         if (!this.formLogin) return;
         
@@ -386,6 +399,9 @@ const AuthController = {
         
         // OTP Inputs Focus Shift Listeners
         this.setupOtpInputBehavior();
+        
+        // Slide Captcha Event Handlers
+        this.setupCaptchaSlider();
     },
     
     switchMode(mode) {
@@ -399,15 +415,94 @@ const AuthController = {
             this.groupUsername.classList.remove('hidden');
             this.inputUsername.setAttribute('required', 'true');
             this.inputUsername.removeAttribute('disabled');
+            this.captchaWrapper.classList.remove('hidden');
+            
+            // Reset and lock Captcha slider
+            this.resetCaptcha();
+            this.btnLoginSubmit.setAttribute('disabled', 'true');
             this.btnLoginSubmit.querySelector('span').innerText = 'NEXT STEP';
         } else {
             this.groupUsername.classList.add('hidden');
             this.inputUsername.removeAttribute('required');
             this.inputUsername.setAttribute('disabled', 'true');
+            this.captchaWrapper.classList.add('hidden');
+            
+            // Bypass slider validation for signing in
+            this.btnLoginSubmit.removeAttribute('disabled');
             this.btnLoginSubmit.querySelector('span').innerText = 'SEND CODE';
         }
         
         this.showAlert('', '');
+    },
+    
+    resetCaptcha() {
+        this.captchaVerified = false;
+        this.isDraggingCaptcha = false;
+        this.captchaTrack.classList.remove('verified');
+        this.captchaHandle.style.transform = 'translate3d(0, 0, 0)';
+        this.captchaHandle.classList.remove('verified');
+        this.captchaText.innerText = 'Slide to Verify Human';
+    },
+    
+    setupCaptchaSlider() {
+        if (!this.captchaHandle) return;
+        
+        const startDrag = (clientX) => {
+            if (this.captchaVerified) return;
+            this.isDraggingCaptcha = true;
+            this.captchaDragStartX = clientX;
+            this.captchaHandle.style.transition = 'none';
+        };
+        
+        const moveDrag = (clientX) => {
+            if (!this.isDraggingCaptcha || this.captchaVerified) return;
+            
+            const maxSlide = this.captchaTrack.offsetWidth - this.captchaHandle.offsetWidth - 4;
+            let currentX = clientX - this.captchaDragStartX;
+            
+            // Clamping
+            if (currentX < 0) currentX = 0;
+            if (currentX > maxSlide) currentX = maxSlide;
+            
+            this.captchaHandle.style.transform = `translate3d(${currentX}px, 0, 0)`;
+            
+            // Check Unlock completion
+            if (currentX >= maxSlide) {
+                this.captchaVerified = true;
+                this.isDraggingCaptcha = false;
+                
+                // Set green locked styles
+                this.captchaTrack.classList.add('verified');
+                this.captchaHandle.classList.add('verified');
+                this.captchaHandle.innerText = '✓';
+                this.captchaText.innerText = 'Human Verified';
+                this.captchaHandle.style.transition = 'transform 0.2s';
+                
+                // Unlock login/signup trigger button
+                this.btnLoginSubmit.removeAttribute('disabled');
+            }
+        };
+        
+        const endDrag = () => {
+            if (!this.isDraggingCaptcha) return;
+            this.isDraggingCaptcha = false;
+            
+            if (!this.captchaVerified) {
+                // Snap back to starting index
+                this.captchaHandle.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)';
+                this.captchaHandle.style.transform = 'translate3d(0, 0, 0)';
+            }
+        };
+        
+        // Mouse Listeners
+        this.captchaHandle.addEventListener('mousedown', (e) => startDrag(e.clientX));
+        window.addEventListener('mousemove', (e) => moveDrag(e.clientX));
+        window.addEventListener('mouseup', () => endDrag());
+        
+        // Touch Listeners (Mobile compatibility)
+        this.captchaHandle.addEventListener('touchstart', (e) => startDrag(e.touches[0].clientX));
+        window.addEventListener('touchmove', (e) => moveDrag(e.touches[0].clientX));
+        window.addEventListener('touchend', () => endDrag());
     },
     
     showPanel(activePanel) {
@@ -422,8 +517,8 @@ const AuthController = {
         // Focus first field
         if (activePanel === this.panelOtp && this.otpBoxes[0]) {
             setTimeout(() => this.otpBoxes[0].focus(), 100);
-        } else if (activePanel === this.panelDetails && this.inputPhone) {
-            setTimeout(() => this.inputPhone.focus(), 100);
+        } else if (activePanel === this.panelDetails && this.inputName) {
+            setTimeout(() => this.inputName.focus(), 100);
         }
     },
     
@@ -444,10 +539,7 @@ const AuthController = {
             box.addEventListener('input', (e) => {
                 const value = e.target.value;
                 if (value.length > 0) {
-                    // Force only single numeric characters
                     e.target.value = value.replace(/[^0-9]/g, '').slice(-1);
-                    
-                    // Focus next box
                     if (index < this.otpBoxes.length - 1 && e.target.value) {
                         this.otpBoxes[index + 1].focus();
                     }
@@ -473,7 +565,6 @@ const AuthController = {
                     }
                 });
                 
-                // Focus final populated digit or last field
                 const focusIdx = Math.min(cleanDigits.length, this.otpBoxes.length - 1);
                 if (this.otpBoxes[focusIdx]) {
                     this.otpBoxes[focusIdx].focus();
@@ -491,11 +582,16 @@ const AuthController = {
         const usernameVal = this.inputUsername ? this.inputUsername.value.trim() : '';
         
         if (this.mode === 'signup') {
+            if (!this.captchaVerified) {
+                this.showAlert('error', 'Please complete the human validation slider.');
+                return;
+            }
+            
             this.showAlert('info', 'Registering customer portal credentials...');
             this.btnLoginSubmit.setAttribute('disabled', 'true');
             
             try {
-                const response = await fetch('http://localhost:5000/api/register', {
+                const response = await fetch('http://localhost:5000/api/register-request', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: usernameVal, email: emailVal, password: passwordVal })
@@ -504,17 +600,17 @@ const AuthController = {
                 const data = await response.json();
                 this.btnLoginSubmit.removeAttribute('disabled');
                 
-                if (data.success) {
+                if (data.success && data.otpSent) {
                     this.email = emailVal; // Cache email
-                    this.showAlert('success', 'Account registered! Proceeding to onboarding...');
+                    this.showAlert('success', 'Access code dispatched to customer logs!');
                     
-                    // Direct redirect to onboarding details panel (skip OTP for new signups)
+                    // Switch to OTP panel to verify registration email
                     setTimeout(() => {
                         this.showAlert('', '');
-                        this.showPanel(this.panelDetails);
-                    }, 1200);
+                        this.showPanel(this.panelOtp);
+                    }, 1000);
                 } else {
-                    this.showAlert('error', data.message || 'Registration rejected.');
+                    this.showAlert('error', data.message || 'Registration request rejected.');
                 }
             } catch (err) {
                 console.error(err);
@@ -539,7 +635,6 @@ const AuthController = {
                     this.email = emailVal; // Cache email
                     this.showAlert('success', 'Access code dispatched to customer logs!');
                     
-                    // Switch panel with animation delay
                     setTimeout(() => {
                         this.showAlert('', '');
                         this.showPanel(this.panelOtp);
@@ -569,8 +664,10 @@ const AuthController = {
         this.showAlert('info', 'Evaluating authorization signature...');
         this.btnOtpSubmit.setAttribute('disabled', 'true');
         
+        const endpoint = this.mode === 'signup' ? '/api/verify-registration-otp' : '/api/verify-otp';
+        
         try {
-            const response = await fetch('http://localhost:5000/api/verify-otp', {
+            const response = await fetch(`http://localhost:5000${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email: this.email, otpCode })
@@ -581,7 +678,7 @@ const AuthController = {
             
             if (data.success) {
                 if (data.requireDetails) {
-                    this.showAlert('success', 'OTP signature verified! Customer onboarding required.');
+                    this.showAlert('success', 'OTP verified! Customer profile setup required.');
                     
                     setTimeout(() => {
                         this.showAlert('', '');
@@ -605,14 +702,13 @@ const AuthController = {
         }
     },
     
-    // Step 3: Register profile information
+    // Step 3: Register profile information (Name, Address, Contact Number)
     async handleSaveDetails(e) {
         e.preventDefault();
         
+        const name = this.inputName.value.trim();
         const phone = this.inputPhone.value.trim();
-        const company = this.inputCompany.value.trim();
-        const interest = this.inputInterest.value;
-        const brief = this.inputBrief.value.trim();
+        const address = this.inputAddress.value.trim();
         
         this.showAlert('info', 'Recording customer profile details...');
         this.btnDetailsSubmit.setAttribute('disabled', 'true');
@@ -623,10 +719,9 @@ const AuthController = {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: this.email,
+                    name,
                     phone,
-                    company,
-                    interest,
-                    brief
+                    address
                 })
             });
             

@@ -87,6 +87,14 @@
                         <a href="#" class="forgot-link">Forgot Password?</a>
                     </div>
 
+                    <!-- Human Verification Captcha Slider (Only visible on Create Account mode) -->
+                    <div class="captcha-slider-wrapper hidden" id="captcha-wrapper">
+                        <div class="captcha-slider-track">
+                            <div class="captcha-slider-handle" id="captcha-handle">&gt;&gt;</div>
+                            <span class="captcha-slider-text" id="captcha-text">Slide to Verify Human</span>
+                        </div>
+                    </div>
+
                     <!-- Submit Button -->
                     <button type="submit" class="btn-auth-submit" id="btn-login-submit">
                         <span>SEND CODE</span>
@@ -121,37 +129,24 @@
                 <form id="form-details" class="login-form">
                     <p class="panel-info">Complete your profile to gain portal access:</p>
                     
-                    <!-- Phone Number -->
+                    <!-- Full Name -->
+                    <div class="input-group">
+                        <input type="text" id="details-name" required>
+                        <label for="details-name">Full Name</label>
+                        <span class="input-line"></span>
+                    </div>
+
+                    <!-- Contact Number -->
                     <div class="input-group">
                         <input type="tel" id="details-phone" required>
-                        <label for="details-phone">Phone Number</label>
+                        <label for="details-phone">Contact Number</label>
                         <span class="input-line"></span>
                     </div>
 
-                    <!-- Company / Brand Name -->
-                    <div class="input-group">
-                        <input type="text" id="details-company" required>
-                        <label for="details-company">Company / Brand Name</label>
-                        <span class="input-line"></span>
-                    </div>
-
-                    <!-- Creative Interest -->
-                    <div class="input-group select-group">
-                        <select id="details-interest" required>
-                            <option value="" disabled selected hidden></option>
-                            <option value="cgi">CGI & 3D Artwork</option>
-                            <option value="motion">Motion Design & Film</option>
-                            <option value="web">Web Architectures</option>
-                            <option value="branding">Brand Design System</option>
-                        </select>
-                        <label for="details-interest">Primary Creative Interest</label>
-                        <span class="input-line"></span>
-                    </div>
-
-                    <!-- Project Brief -->
+                    <!-- Physical/Billing Address -->
                     <div class="input-group textarea-group">
-                        <textarea id="details-brief" rows="3" required placeholder=" "></textarea>
-                        <label for="details-brief">Project Brief / Core Requirements</label>
+                        <textarea id="details-address" rows="3" required placeholder=" "></textarea>
+                        <label for="details-address">Physical / Billing Address</label>
                         <span class="input-line"></span>
                     </div>
 

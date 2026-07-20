@@ -307,14 +307,9 @@ const GravityField = {
 
 // 3. Authentication Forms Controller
 const AuthController = {
-    mode: 'signin', // 'signin' or 'signup'
     form: null,
     alertBox: null,
     btnSubmit: null,
-    tabSignIn: null,
-    tabSignUp: null,
-    groupUsername: null,
-    inputUsername: null,
     inputEmail: null,
     inputPassword: null,
     
@@ -322,46 +317,13 @@ const AuthController = {
         this.form = document.getElementById('form-auth');
         this.alertBox = document.getElementById('auth-alert');
         this.btnSubmit = document.getElementById('btn-submit');
-        this.tabSignIn = document.getElementById('tab-signin');
-        this.tabSignUp = document.getElementById('tab-signup');
-        this.groupUsername = document.getElementById('group-username');
-        this.inputUsername = document.getElementById('auth-username');
         this.inputEmail = document.getElementById('auth-email');
         this.inputPassword = document.getElementById('auth-password');
         
         if (!this.form) return;
         
-        // Tab click listeners
-        this.tabSignIn.addEventListener('click', () => this.switchMode('signin'));
-        this.tabSignUp.addEventListener('click', () => this.switchMode('signup'));
-        
         // Form submit
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-    },
-    
-    switchMode(mode) {
-        if (this.mode === mode) return;
-        this.mode = mode;
-        
-        // Toggle tab highlights
-        this.tabSignIn.classList.toggle('active', mode === 'signin');
-        this.tabSignUp.classList.toggle('active', mode === 'signup');
-        
-        // Toggle username inputs
-        if (mode === 'signup') {
-            this.groupUsername.classList.remove('hidden');
-            this.inputUsername.setAttribute('required', 'true');
-            this.inputUsername.removeAttribute('disabled');
-            this.btnSubmit.querySelector('span').innerText = 'CREATE ACCOUNT';
-        } else {
-            this.groupUsername.classList.add('hidden');
-            this.inputUsername.removeAttribute('required');
-            this.inputUsername.setAttribute('disabled', 'true');
-            this.btnSubmit.querySelector('span').innerText = 'ENTER PORTAL';
-        }
-        
-        // Clear alerts
-        this.showAlert('', '');
     },
     
     showAlert(type, message) {
@@ -380,43 +342,28 @@ const AuthController = {
         
         const email = this.inputEmail.value.trim();
         const password = this.inputPassword.value;
-        const username = this.inputUsername.value.trim();
         
         this.showAlert('info', 'Authenticating with security protocol...');
         this.btnSubmit.setAttribute('disabled', 'true');
-        
-        const endpoint = this.mode === 'signin' ? '/api/login' : '/api/register';
-        const payload = this.mode === 'signin' 
-            ? { email, password } 
-            : { username, email, password };
             
         try {
-            const response = await fetch(`http://localhost:5000${endpoint}`, {
+            const response = await fetch('http://localhost:5000/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ email, password })
             });
             
             const data = await response.json();
             this.btnSubmit.removeAttribute('disabled');
             
             if (data.success) {
-                if (this.mode === 'signup') {
-                    this.showAlert('success', 'Account created! Redirecting to login tab...');
-                    setTimeout(() => {
-                        this.switchMode('signin');
-                        this.inputEmail.value = email;
-                        this.inputPassword.value = '';
-                    }, 1500);
-                } else {
-                    this.showAlert('success', 'Access granted. Welcome to PV Studios!');
-                    localStorage.setItem('user_session', JSON.stringify(data.user));
-                    
-                    // Redirect back home on success
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1200);
-                }
+                this.showAlert('success', 'Access granted. Welcome to PV Studios!');
+                localStorage.setItem('user_session', JSON.stringify(data.user));
+                
+                // Redirect back home on success
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1200);
             } else {
                 this.showAlert('error', data.message || 'Authentication failed.');
             }

@@ -609,6 +609,9 @@ const WebGLEngine = {
 // 4. UI Interactions & Trigger Hooks
 const UIController = {
     init() {
+        // Check user session
+        this.checkUserSession();
+
         // Attach Web Audio API sound triggers
         const interactives = document.querySelectorAll(
             '.nav-item, .btn-start-project, .btn-explore, .feature-item, .bottom-left, .bottom-center, .btn-explore-all, .btn-project-cta, .portfolio-card, .btn-cta-banner-start, .btn-explore-services, .hotspot, .nav-dot, .stat-item'
@@ -777,6 +780,43 @@ const UIController = {
         document.querySelectorAll('.reveal').forEach(el => {
             revealObserver.observe(el);
         });
+    },
+
+    // Check for active user session and render profile badge in navbar
+    checkUserSession() {
+        const sessionData = localStorage.getItem('user_session');
+        if (!sessionData) return;
+        
+        try {
+            const session = JSON.parse(sessionData);
+            const ctaContainer = document.querySelector('.nav-cta');
+            if (!ctaContainer) return;
+            
+            // Build the user profile badge markup
+            ctaContainer.innerHTML = `
+                <div class="user-profile-badge">
+                    <img src="${session.avatar || 'assets/logo.png'}" alt="Avatar" class="user-avatar">
+                    <span class="user-name">${session.username}</span>
+                    <button class="btn-logout" id="btn-logout" title="Log Out">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            
+            // Setup logout click handler
+            const btnLogout = document.getElementById('btn-logout');
+            if (btnLogout) {
+                btnLogout.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    localStorage.removeItem('user_session');
+                    window.location.reload();
+                });
+            }
+        } catch (err) {
+            console.error('Error parsing session data:', err);
+        }
     }
 };
 

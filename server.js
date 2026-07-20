@@ -112,8 +112,8 @@ app.post('/api/login', (req, res) => {
         return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
 
-    // Check if customer profile details are missing
-    const requireDetails = !user.name || !user.address || !user.phone;
+    // Check if customer profile details are missing (Name and Phone)
+    const requireDetails = !user.name || !user.phone;
 
     if (requireDetails) {
         return res.status(200).json({
@@ -134,17 +134,16 @@ app.post('/api/login', (req, res) => {
             username: user.username,
             name: user.name,
             email: user.email,
-            address: user.address,
             phone: user.phone
         }
     });
 });
 
-// 3. Complete Profile Details (Name, Address, Contact Number)
+// 3. Complete Profile Details (Name, Contact Number)
 app.post('/api/save-details', (req, res) => {
-    const { email, name, address, phone } = req.body;
+    const { email, name, phone } = req.body;
 
-    if (!email || !name || !address || !phone) {
+    if (!email || !name || !phone) {
         return res.status(400).json({ success: false, message: 'Please fill in all profile fields.' });
     }
 
@@ -157,7 +156,6 @@ app.post('/api/save-details', (req, res) => {
 
     // Save profile details
     user.name = name;
-    user.address = address;
     user.phone = phone;
     writeUsers(users);
 
@@ -171,7 +169,6 @@ app.post('/api/save-details', (req, res) => {
             username: user.username,
             name: user.name,
             email: user.email,
-            address: user.address,
             phone: user.phone
         }
     });

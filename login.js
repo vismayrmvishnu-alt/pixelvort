@@ -334,7 +334,6 @@ const AuthController = {
     // Profile details inputs
     inputName: null,
     inputPhone: null,
-    inputAddress: null,
     
     btnLoginSubmit: null,
     btnDetailsSubmit: null,
@@ -364,7 +363,6 @@ const AuthController = {
         
         this.inputName = document.getElementById('details-name');
         this.inputPhone = document.getElementById('details-phone');
-        this.inputAddress = document.getElementById('details-address');
         
         this.btnLoginSubmit = document.getElementById('btn-login-submit');
         this.btnDetailsSubmit = document.getElementById('btn-details-submit');
@@ -603,13 +601,12 @@ const AuthController = {
         }
     },
     
-    // Step 2: Register profile information (Name, Address, Contact Number)
+    // Step 2: Register profile information (Name, Contact Number)
     async handleSaveDetails(e) {
         e.preventDefault();
         
         const name = this.inputName.value.trim();
         const phone = this.inputPhone.value.trim();
-        const address = this.inputAddress.value.trim();
         
         this.showAlert('info', 'Recording client details...');
         this.btnDetailsSubmit.setAttribute('disabled', 'true');
@@ -621,8 +618,7 @@ const AuthController = {
                 body: JSON.stringify({
                     email: this.email,
                     name,
-                    phone,
-                    address
+                    phone
                 })
             });
             

@@ -10,6 +10,18 @@ const PORT = process.env.PORT || 5000;
 const DB_FILE = path.join(__dirname, 'database.json');
 const PREVIEW_FILE = path.join(__dirname, 'otp_preview.txt');
 
+// ==========================================================
+// SMTP Configuration for Email OTP Dispatch
+// ==========================================================
+// Fill in your Gmail details below to send real emails:
+const SMTP_CONFIG = {
+    enabled: false,             // Set to true to send real emails!
+    email: 'YOUR_EMAIL@gmail.com',
+    password: 'YOUR_GOOGLE_APP_PASSWORD', // Must be an App Password, not normal password
+    host: 'smtp.gmail.com',
+    port: 587
+};
+
 // Temporary in-memory cache for pending registrations awaiting email verification
 const pendingRegistrations = {};
 
@@ -57,22 +69,22 @@ function verifyPassword(password, salt, storedHash) {
 
 // Helper: Send OTP via Nodemailer with local fallback
 async function sendOTPEmail(email, username, otpCode) {
-    const hasSmtpConfig = process.env.SMTP_EMAIL && process.env.SMTP_PASSWORD;
+    const hasSmtpConfig = SMTP_CONFIG.enabled && SMTP_CONFIG.email && SMTP_CONFIG.password;
     
     if (hasSmtpConfig) {
         try {
             const transporter = nodemailer.createTransport({
-                host: process.env.SMTP_HOST || 'smtp.gmail.com',
-                port: process.env.SMTP_PORT || 587,
+                host: SMTP_CONFIG.host,
+                port: SMTP_CONFIG.port,
                 secure: false,
                 auth: {
-                    user: process.env.SMTP_EMAIL,
-                    pass: process.env.SMTP_PASSWORD
+                    user: SMTP_CONFIG.email,
+                    pass: SMTP_CONFIG.password
                 }
             });
             
             const mailOptions = {
-                from: `"PV Studios" <${process.env.SMTP_EMAIL}>`,
+                from: `"PV Studios" <${SMTP_CONFIG.email}>`,
                 to: email,
                 subject: 'Your PV Portal Access Code',
                 text: `Your one-time authorization code is: ${otpCode}. This code is valid for 5 minutes.`,

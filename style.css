@@ -2703,3 +2703,130 @@ body.loaded #loader-screen {
     color: #ff6b6b;
 }
 
+/* OTP & Onboarding Wizard Styling */
+.auth-panel {
+    display: block;
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.auth-panel.hidden {
+    display: none;
+}
+
+.panel-info {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+.otp-inputs-container {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0 2.5rem 0;
+}
+
+.otp-box {
+    width: 46px;
+    height: 46px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 6px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+}
+
+.otp-box:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 12px rgba(245, 154, 35, 0.25);
+    background-color: rgba(245, 154, 35, 0.02);
+}
+
+/* Dropdown/Select and Textarea styling overrides */
+.select-group select {
+    width: 100%;
+    padding: 10px 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--text-primary);
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    transition: border-color 0.3s;
+}
+
+/* Dropdown indicator icon */
+.select-group::after {
+    content: "▼";
+    font-size: 8px;
+    color: var(--text-secondary);
+    position: absolute;
+    right: 5px;
+    bottom: 14px;
+    pointer-events: none;
+}
+
+.select-group select option {
+    background-color: #0d0d0d;
+    color: var(--text-primary);
+}
+
+/* Fix floating labels for selects when active */
+.select-group select:focus ~ label,
+.select-group select:valid ~ label {
+    top: -12px;
+    font-size: 10px;
+    color: var(--accent-primary);
+    letter-spacing: 0.05em;
+}
+
+.textarea-group textarea {
+    width: 100%;
+    padding: 10px 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    color: var(--text-primary);
+    outline: none;
+    resize: none;
+    transition: border-color 0.3s;
+}
+
+/* Fix floating labels for textarea */
+.textarea-group textarea:focus ~ label,
+.textarea-group textarea:not(:placeholder-shown) ~ label {
+    top: -12px;
+    font-size: 10px;
+    color: var(--accent-primary);
+    letter-spacing: 0.05em;
+}
+
+.textarea-group {
+    margin-top: 0.5rem;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+

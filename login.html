@@ -47,39 +47,107 @@
                 <p class="login-subtitle">Enter your credentials to access the console</p>
             </div>
 
-            <!-- Authentication Form -->
-            <form id="form-auth" class="login-form">
+            <!-- Panel 1: Credentials Form -->
+            <div id="panel-credentials" class="auth-panel">
+                <form id="form-login" class="login-form">
+                    <!-- Email field -->
+                    <div class="input-group">
+                        <input type="email" id="auth-email" required>
+                        <label for="auth-email">Email Address</label>
+                        <span class="input-line"></span>
+                    </div>
 
-                <!-- Email field -->
-                <div class="input-group">
-                    <input type="email" id="auth-email" required>
-                    <label for="auth-email">Email Address</label>
-                    <span class="input-line"></span>
-                </div>
+                    <!-- Password field -->
+                    <div class="input-group">
+                        <input type="password" id="auth-password" required>
+                        <label for="auth-password">Password</label>
+                        <span class="input-line"></span>
+                    </div>
 
-                <!-- Password field -->
-                <div class="input-group">
-                    <input type="password" id="auth-password" required>
-                    <label for="auth-password">Password</label>
-                    <span class="input-line"></span>
-                </div>
+                    <!-- Options -->
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="remember-me">
+                            <span class="checkmark"></span>
+                            Remember Session
+                        </label>
+                        <a href="#" class="forgot-link">Forgot Password?</a>
+                    </div>
 
-                <!-- Options -->
-                <div class="form-options">
-                    <label class="checkbox-container">
-                        <input type="checkbox" id="remember-me">
-                        <span class="checkmark"></span>
-                        Remember Session
-                    </label>
-                    <a href="#" class="forgot-link">Forgot Password?</a>
-                </div>
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-auth-submit" id="btn-login-submit">
+                        <span>SEND CODE</span>
+                        <span class="btn-arrow">↗</span>
+                    </button>
+                </form>
+            </div>
 
-                <!-- Submit Button -->
-                <button type="submit" class="btn-auth-submit" id="btn-submit">
-                    <span>ENTER PORTAL</span>
-                    <span class="btn-arrow">↗</span>
-                </button>
-            </form>
+            <!-- Panel 2: OTP Verification -->
+            <div id="panel-otp" class="auth-panel hidden">
+                <form id="form-otp" class="login-form">
+                    <p class="panel-info">An authorization code was dispatched. Enter it below:</p>
+                    
+                    <div class="otp-inputs-container">
+                        <input type="text" maxlength="1" class="otp-box" required>
+                        <input type="text" maxlength="1" class="otp-box" required>
+                        <input type="text" maxlength="1" class="otp-box" required>
+                        <input type="text" maxlength="1" class="otp-box" required>
+                        <input type="text" maxlength="1" class="otp-box" required>
+                        <input type="text" maxlength="1" class="otp-box" required>
+                    </div>
+
+                    <button type="submit" class="btn-auth-submit" id="btn-otp-submit">
+                        <span>VERIFY CODE</span>
+                        <span class="btn-arrow">↗</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Panel 3: Customer Details Profile Setup -->
+            <div id="panel-details" class="auth-panel hidden">
+                <form id="form-details" class="login-form">
+                    <p class="panel-info">Complete your profile to gain portal access:</p>
+                    
+                    <!-- Phone Number -->
+                    <div class="input-group">
+                        <input type="tel" id="details-phone" required>
+                        <label for="details-phone">Phone Number</label>
+                        <span class="input-line"></span>
+                    </div>
+
+                    <!-- Company / Brand Name -->
+                    <div class="input-group">
+                        <input type="text" id="details-company" required>
+                        <label for="details-company">Company / Brand Name</label>
+                        <span class="input-line"></span>
+                    </div>
+
+                    <!-- Creative Interest -->
+                    <div class="input-group select-group">
+                        <select id="details-interest" required>
+                            <option value="" disabled selected hidden></option>
+                            <option value="cgi">CGI & 3D Artwork</option>
+                            <option value="motion">Motion Design & Film</option>
+                            <option value="web">Web Architectures</option>
+                            <option value="branding">Brand Design System</option>
+                        </select>
+                        <label for="details-interest">Primary Creative Interest</label>
+                        <span class="input-line"></span>
+                    </div>
+
+                    <!-- Project Brief -->
+                    <div class="input-group textarea-group">
+                        <textarea id="details-brief" rows="3" required placeholder=" "></textarea>
+                        <label for="details-brief">Project Brief / Core Requirements</label>
+                        <span class="input-line"></span>
+                    </div>
+
+                    <button type="submit" class="btn-auth-submit" id="btn-details-submit">
+                        <span>COMPLETE PROFILE</span>
+                        <span class="btn-arrow">↗</span>
+                    </button>
+                </form>
+            </div>
 
             <!-- Alert Box for Notifications -->
             <div id="auth-alert" class="auth-alert"></div>

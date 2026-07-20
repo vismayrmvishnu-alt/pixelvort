@@ -442,8 +442,7 @@ const AuthController = {
     
     renderGoogleButton() {
         window.google.accounts.id.initialize({
-            // Standard OAuth client ID (Placeholder, functions locally for JWT validation)
-            client_id: "54238549583-auth-pvstudios-client.apps.googleusercontent.com", 
+            client_id: "48384073183-kg8e373m7fm0f62acmoigo7ee92bf7fl.apps.googleusercontent.com", 
             callback: (resp) => this.handleGoogleCredential(resp)
         });
         

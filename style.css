@@ -61,7 +61,7 @@ button {
 .page-scroll-container {
     position: relative;
     width: 100%;
-    z-index: 2;
+    z-index: 3;
 }
 
 /* ==========================================
@@ -180,8 +180,20 @@ body.loaded #loader-screen {
     left: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 1;
+    z-index: 2;
     pointer-events: none; /* Let clicks pass through to content */
+    background: transparent;
+}
+
+/* Interactive Gravity Particle Field Canvas */
+#gravity-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
     background: transparent;
 }
 
@@ -2124,5 +2136,87 @@ body.loaded #loader-screen {
 
     .stat-divider {
         display: none;
+    }
+}
+
+/* ==========================================
+   Custom Interactive Cursor
+   ========================================== */
+@media (pointer: fine) {
+    /* Hide native cursor for a clean premium custom cursor experience */
+    body, 
+    a, 
+    button, 
+    .portfolio-card, 
+    .hotspot, 
+    .nav-dot, 
+    .scroll-indicator, 
+    .btn-explore, 
+    .btn-explore-all, 
+    .btn-project-cta, 
+    .btn-cta-banner-start, 
+    .btn-explore-services, 
+    .play-button-wrapper,
+    .bottom-center {
+        cursor: none !important;
+    }
+    
+    .custom-cursor-dot {
+        width: 6px;
+        height: 6px;
+        background-color: var(--accent-primary);
+        border-radius: 50%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 99999;
+        transform: translate3d(-50%, -50%, 0);
+        transition: width 0.2s ease, height 0.2s ease, background-color 0.2s ease;
+    }
+    
+    .custom-cursor-ring {
+        width: 40px;
+        height: 40px;
+        border: 1px solid rgba(245, 154, 35, 0.45);
+        background-color: rgba(245, 154, 35, 0.03);
+        border-radius: 50%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 99998;
+        transform: translate3d(-50%, -50%, 0);
+        will-change: transform;
+        transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+                    height 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+                    border-color 0.3s ease, 
+                    background-color 0.3s ease, 
+                    box-shadow 0.3s ease;
+    }
+    
+    /* Hover active states */
+    body.cursor-hovering .custom-cursor-dot {
+        width: 4px;
+        height: 4px;
+        background-color: var(--highlight);
+    }
+    
+    body.cursor-hovering .custom-cursor-ring {
+        width: 68px;
+        height: 68px;
+        border-color: var(--highlight);
+        background-color: rgba(245, 154, 35, 0.08);
+        box-shadow: 0 0 20px rgba(245, 154, 35, 0.25);
+    }
+    
+    /* Click state feedback */
+    body.cursor-clicking .custom-cursor-ring {
+        width: 30px;
+        height: 30px;
+        border-color: var(--accent-secondary);
+        background-color: rgba(229, 127, 21, 0.18);
+        box-shadow: 0 0 12px rgba(229, 127, 21, 0.45);
+        transform: translate3d(-50%, -50%, 0) scale(0.9);
     }
 }

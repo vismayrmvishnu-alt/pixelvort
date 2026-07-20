@@ -780,10 +780,229 @@ const UIController = {
     }
 };
 
+// 3. Custom Interactive Cursor Controller (Physics-based Lerp lag)
+const CursorController = {
+    dot: null,
+    ring: null,
+    
+    // Exact cursor positions
+    mouse: { x: -100, y: -100 },
+    // Smooth trailing ring positions
+    ringPos: { x: -100, y: -100 },
+    
+    isVisible: false,
+    
+    init() {
+        // Disable on touch screens (only run if fine pointer matches)
+        if (!window.matchMedia('(pointer: fine)').matches) return;
+        
+        this.dot = document.querySelector('.custom-cursor-dot');
+        this.ring = document.querySelector('.custom-cursor-ring');
+        if (!this.dot || !this.ring) return;
+        
+        // Hide elements initially
+        this.dot.style.opacity = '0';
+        this.ring.style.opacity = '0';
+        
+        // Track mouse position
+        window.addEventListener('mousemove', (e) => {
+            this.mouse.x = e.clientX;
+            this.mouse.y = e.clientY;
+            
+            if (!this.isVisible) {
+                this.dot.style.opacity = '1';
+                this.ring.style.opacity = '1';
+                this.isVisible = true;
+            }
+        });
+        
+        // Hover listeners for interactive targets
+        const addHoverEvents = () => {
+            const hoverTargets = document.querySelectorAll(
+                'a, button, .portfolio-card, .hotspot, .nav-dot, .scroll-indicator, .play-button-wrapper, .bottom-center, .cta-button, .btn-explore, .btn-explore-all, .btn-project-cta, .btn-cta-banner-start, .btn-explore-services'
+            );
+            
+            hoverTargets.forEach(target => {
+                target.addEventListener('mouseenter', () => {
+                    document.body.classList.add('cursor-hovering');
+                });
+                
+                target.addEventListener('mouseleave', () => {
+                    document.body.classList.remove('cursor-hovering');
+                });
+            });
+        };
+        
+        addHoverEvents();
+        
+        // Click feedback states
+        window.addEventListener('mousedown', () => {
+            document.body.classList.add('cursor-clicking');
+        });
+        
+        window.addEventListener('mouseup', () => {
+            document.body.classList.remove('cursor-clicking');
+        });
+        
+        // Hide cursor when leaving browser viewport
+        document.addEventListener('mouseleave', () => {
+            this.dot.style.opacity = '0';
+            this.ring.style.opacity = '0';
+            this.isVisible = false;
+        });
+        
+        // Start animation loop
+        this.tick();
+    },
+    
+    tick() {
+        // Smooth interpolation formula
+        const easeFactor = 0.15;
+        this.ringPos.x += (this.mouse.x - this.ringPos.x) * easeFactor;
+        this.ringPos.y += (this.mouse.y - this.ringPos.y) * easeFactor;
+        
+        // Render positions using translate3d
+        if (this.isVisible) {
+            this.dot.style.transform = `translate3d(${this.mouse.x}px, ${this.mouse.y}px, 0) translate3d(-50%, -50%, 0)`;
+            this.ring.style.transform = `translate3d(${this.ringPos.x}px, ${this.ringPos.y}px, 0) translate3d(-50%, -50%, 0)`;
+        }
+        
+        requestAnimationFrame(() => this.tick());
+    }
+};
+
+// 4. Interactive Magnetic Gravity Field Canvas (Google Antigravity-inspired)
+const GravityField = {
+    canvas: null,
+    ctx: null,
+    points: [],
+    spacing: 50, // grid spacing in pixels
+    mouse: { x: -1000, y: -1000, active: false },
+    
+    init() {
+        this.canvas = document.getElementById('gravity-canvas');
+        if (!this.canvas) return;
+        
+        this.ctx = this.canvas.getContext('2d');
+        this.resize();
+        
+        window.addEventListener('resize', () => this.resize());
+        window.addEventListener('mousemove', (e) => {
+            this.mouse.x = e.clientX;
+            this.mouse.y = e.clientY;
+            this.mouse.active = true;
+        });
+        
+        document.addEventListener('mouseleave', () => {
+            this.mouse.active = false;
+        });
+        
+        this.tick();
+    },
+    
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+        
+        this.points = [];
+        const cols = Math.ceil(this.canvas.width / this.spacing) + 1;
+        const rows = Math.ceil(this.canvas.height / this.spacing) + 1;
+        
+        for (let c = 0; c < cols; c++) {
+            for (let r = 0; r < rows; r++) {
+                this.points.push({
+                    x: c * this.spacing,
+                    y: r * this.spacing,
+                    angle: 0,
+                    currentAngle: 0,
+                    scale: 1,
+                    brightness: 0
+                });
+            }
+        }
+    },
+    
+    tick() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        const mX = this.mouse.x;
+        const mY = this.mouse.y;
+        const active = this.mouse.active;
+        
+        for (let i = 0; i < this.points.length; i++) {
+            const pt = this.points[i];
+            
+            // Point towards cursor if active, or fall back to center viewport
+            const targetX = active ? mX : this.canvas.width / 2;
+            const targetY = active ? mY : this.canvas.height / 2;
+            
+            const dx = targetX - pt.x;
+            const dy = targetY - pt.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            // Calculate target angle
+            pt.angle = Math.atan2(dy, dx);
+            
+            // Smoothly interpolate angle (lerp) and handle wrapping (-PI to PI)
+            let diff = pt.angle - pt.currentAngle;
+            while (diff < -Math.PI) diff += Math.PI * 2;
+            while (diff > Math.PI) diff -= Math.PI * 2;
+            pt.currentAngle += diff * 0.12;
+            
+            // Proximity parameters
+            const maxRadius = 300;
+            let targetBrightness = 0;
+            let targetScale = 1;
+            
+            if (active && dist < maxRadius) {
+                const factor = 1 - (dist / maxRadius);
+                targetBrightness = factor;
+                targetScale = 1 + factor * 0.4; // Scale up to 1.4x
+            }
+            
+            // Smoothly lerp brightness & scale changes
+            pt.brightness += (targetBrightness - pt.brightness) * 0.12;
+            pt.scale += (targetScale - pt.scale) * 0.12;
+            
+            // Draw needle
+            this.ctx.save();
+            this.ctx.translate(pt.x, pt.y);
+            this.ctx.rotate(pt.currentAngle);
+            
+            const alpha = 0.04 + pt.brightness * 0.35;
+            const length = 10 * pt.scale;
+            const thickness = 1.2 * pt.scale;
+            
+            if (pt.brightness > 0.05) {
+                this.ctx.strokeStyle = `rgba(245, 154, 35, ${alpha})`;
+                this.ctx.shadowBlur = pt.brightness * 6;
+                this.ctx.shadowColor = 'rgba(255, 193, 90, 0.4)';
+            } else {
+                this.ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                this.ctx.shadowBlur = 0;
+            }
+            
+            this.ctx.lineWidth = thickness;
+            this.ctx.lineCap = 'round';
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(-length / 2, 0);
+            this.ctx.lineTo(length / 2, 0);
+            this.ctx.stroke();
+            
+            this.ctx.restore();
+        }
+        
+        requestAnimationFrame(() => this.tick());
+    }
+};
+
 // Initialize everything on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
     WebGLEngine.init();
     UIController.init();
+    CursorController.init();
+    GravityField.init();
     
     // Auto-initialize Audio Context and trigger playWelcome on first click if loaded but blocked
     document.addEventListener('click', () => {

@@ -871,13 +871,23 @@ const CursorController = {
     }
 };
 
-// 4. Interactive Magnetic Gravity Field Canvas (Google Antigravity-inspired)
+// 4. Interactive Next-Level Physics Gravity Field Canvas (Spring Elasticity, Vortex Swirl & Wind Shear Trails)
 const GravityField = {
     canvas: null,
     ctx: null,
     points: [],
+    sparks: [],
     spacing: 50, // grid spacing in pixels
-    mouse: { x: -1000, y: -1000, active: false },
+    mouse: { 
+        x: -1000, 
+        y: -1000, 
+        lastX: -1000, 
+        lastY: -1000, 
+        vx: 0, 
+        vy: 0, 
+        speed: 0,
+        active: false 
+    },
     
     init() {
         this.canvas = document.getElementById('gravity-canvas');
@@ -888,6 +898,10 @@ const GravityField = {
         
         window.addEventListener('resize', () => this.resize());
         window.addEventListener('mousemove', (e) => {
+            if (this.mouse.lastX === -1000) {
+                this.mouse.lastX = e.clientX;
+                this.mouse.lastY = e.clientY;
+            }
             this.mouse.x = e.clientX;
             this.mouse.y = e.clientY;
             this.mouse.active = true;
@@ -895,6 +909,9 @@ const GravityField = {
         
         document.addEventListener('mouseleave', () => {
             this.mouse.active = false;
+            this.mouse.vx = 0;
+            this.mouse.vy = 0;
+            this.mouse.speed = 0;
         });
         
         this.tick();
@@ -911,8 +928,12 @@ const GravityField = {
         for (let c = 0; c < cols; c++) {
             for (let r = 0; r < rows; r++) {
                 this.points.push({
+                    homeX: c * this.spacing,
+                    homeY: r * this.spacing,
                     x: c * this.spacing,
                     y: r * this.spacing,
+                    vx: 0,
+                    vy: 0,
                     angle: 0,
                     currentAngle: 0,
                     scale: 1,
@@ -929,54 +950,148 @@ const GravityField = {
         const mY = this.mouse.y;
         const active = this.mouse.active;
         
+        // 1. Calculate mouse velocity in this frame
+        if (active && this.mouse.lastX !== -1000) {
+            this.mouse.vx = this.mouse.x - this.mouse.lastX;
+            this.mouse.vy = this.mouse.y - this.mouse.lastY;
+            this.mouse.speed = Math.sqrt(this.mouse.vx * this.mouse.vx + this.mouse.vy * this.mouse.vy);
+        } else {
+            this.mouse.vx *= 0.9;
+            this.mouse.vy *= 0.9;
+            this.mouse.speed *= 0.9;
+        }
+        this.mouse.lastX = this.mouse.x;
+        this.mouse.lastY = this.mouse.y;
+        
+        // 2. Emit temporary orange embers when moving fast
+        if (active && this.mouse.speed > 4) {
+            const numSparks = Math.min(Math.floor(this.mouse.speed / 3), 4);
+            for (let s = 0; s < numSparks; s++) {
+                this.sparks.push({
+                    x: mX + (Math.random() - 0.5) * 12,
+                    y: mY + (Math.random() - 0.5) * 12,
+                    vx: this.mouse.vx * 0.25 + (Math.random() - 0.5) * 2.5,
+                    vy: this.mouse.vy * 0.25 + (Math.random() - 0.5) * 2.5,
+                    size: 1.5 + Math.random() * 2.2,
+                    alpha: 0.75 + Math.random() * 0.25,
+                    life: 1.0,
+                    decay: 0.015 + Math.random() * 0.015
+                });
+            }
+        }
+        
+        // 3. Draw sparks trail
+        for (let s = this.sparks.length - 1; s >= 0; s--) {
+            const sp = this.sparks[s];
+            sp.x += sp.vx;
+            sp.y += sp.vy;
+            sp.vx *= 0.97;
+            sp.vy *= 0.97;
+            sp.life -= sp.decay;
+            
+            if (sp.life <= 0) {
+                this.sparks.splice(s, 1);
+                continue;
+            }
+            
+            this.ctx.save();
+            this.ctx.fillStyle = `rgba(245, 154, 35, ${sp.alpha * sp.life})`;
+            this.ctx.shadowBlur = 6 * sp.life;
+            this.ctx.shadowColor = 'rgba(255, 193, 90, 0.7)';
+            this.ctx.beginPath();
+            this.ctx.arc(sp.x, sp.y, sp.size * sp.life, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.restore();
+        }
+        
+        // 4. Update and draw grid elements
+        const springK = 0.06;  // Stiffness constant
+        const damping = 0.82;   // Rubbery deceleration friction
+        const repulsionRadius = 220; // Trigger distance for grid warp force
+        
         for (let i = 0; i < this.points.length; i++) {
             const pt = this.points[i];
             
-            // Point towards cursor if active, or fall back to center viewport
+            // Calculate vector to cursor
+            const dxToMouse = pt.x - mX;
+            const dyToMouse = pt.y - mY;
+            const distToMouse = Math.sqrt(dxToMouse * dxToMouse + dyToMouse * dyToMouse);
+            
+            // A. Physical repulsion force calculation (spring grid warp)
+            let forceX = 0;
+            let forceY = 0;
+            
+            if (active && distToMouse < repulsionRadius) {
+                const strength = (1 - distToMouse / repulsionRadius) * 22; // Repulsive amplitude
+                const angle = Math.atan2(dyToMouse, dxToMouse);
+                forceX = Math.cos(angle) * strength;
+                forceY = Math.sin(angle) * strength;
+            }
+            
+            // Apply spring mechanics (acceleration = force + spring_restoration)
+            const ax = (pt.homeX - pt.x) * springK + forceX;
+            const ay = (pt.homeY - pt.y) * springK + forceY;
+            
+            pt.vx = (pt.vx + ax) * damping;
+            pt.vy = (pt.vy + ay) * damping;
+            
+            pt.x += pt.vx;
+            pt.y += pt.vy;
+            
+            // B. Vortex Swirl calculations
             const targetX = active ? mX : this.canvas.width / 2;
             const targetY = active ? mY : this.canvas.height / 2;
-            
             const dx = targetX - pt.x;
             const dy = targetY - pt.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             
-            // Calculate target angle
-            pt.angle = Math.atan2(dy, dx);
+            const angleToCursor = Math.atan2(dy, dx);
+            let swirl = 0;
+            const swirlRadius = 250;
             
-            // Smoothly interpolate angle (lerp) and handle wrapping (-PI to PI)
-            let diff = pt.angle - pt.currentAngle;
-            while (diff < -Math.PI) diff += Math.PI * 2;
-            while (diff > Math.PI) diff -= Math.PI * 2;
-            pt.currentAngle += diff * 0.12;
+            if (active && dist < swirlRadius) {
+                // Swirl direction factor (blends from linear targeting to 90deg offset)
+                swirl = (1 - dist / swirlRadius) * (Math.PI / 2.2);
+            }
             
-            // Proximity parameters
-            const maxRadius = 300;
+            pt.angle = angleToCursor + swirl;
+            
+            // Smoothly ease angle rotation (with wrapping fallback)
+            let angleDiff = pt.angle - pt.currentAngle;
+            while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+            while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+            pt.currentAngle += angleDiff * 0.15;
+            
+            // C. Proximity brightness and velocity stretching
+            const glowRadius = 220;
             let targetBrightness = 0;
             let targetScale = 1;
             
-            if (active && dist < maxRadius) {
-                const factor = 1 - (dist / maxRadius);
-                targetBrightness = factor;
-                targetScale = 1 + factor * 0.4; // Scale up to 1.4x
+            if (active && dist < glowRadius) {
+                const proximityFactor = 1 - (dist / glowRadius);
+                targetBrightness = proximityFactor;
+                
+                // Add speed stretch offset based on cursor velocity
+                const speedStretch = Math.min(this.mouse.speed * 0.07, 1.6);
+                targetScale = 1 + proximityFactor * 0.45 + speedStretch * proximityFactor;
             }
             
-            // Smoothly lerp brightness & scale changes
-            pt.brightness += (targetBrightness - pt.brightness) * 0.12;
-            pt.scale += (targetScale - pt.scale) * 0.12;
+            pt.brightness += (targetBrightness - pt.brightness) * 0.15;
+            pt.scale += (targetScale - pt.scale) * 0.15;
             
-            // Draw needle
+            // D. Render elements
             this.ctx.save();
             this.ctx.translate(pt.x, pt.y);
             this.ctx.rotate(pt.currentAngle);
             
-            const alpha = 0.04 + pt.brightness * 0.35;
+            const alpha = 0.04 + pt.brightness * 0.45;
             const length = 10 * pt.scale;
             const thickness = 1.2 * pt.scale;
             
             if (pt.brightness > 0.05) {
                 this.ctx.strokeStyle = `rgba(245, 154, 35, ${alpha})`;
-                this.ctx.shadowBlur = pt.brightness * 6;
-                this.ctx.shadowColor = 'rgba(255, 193, 90, 0.4)';
+                this.ctx.shadowBlur = pt.brightness * 8;
+                this.ctx.shadowColor = 'rgba(255, 193, 90, 0.45)';
             } else {
                 this.ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
                 this.ctx.shadowBlur = 0;

@@ -1,4 +1,4 @@
-// Client Dashboard Session Manager & UI Controller
+// Admin Dashboard Session Manager & Interactive UI Controller
 document.addEventListener('DOMContentLoaded', () => {
     // Check if session token exists
     const sessionData = localStorage.getItem('user_session');
@@ -20,13 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Populate greeting & profile details
-        const clientGreetingName = document.getElementById('client-greeting-name');
+        const greetingName = document.querySelector('.header-greeting h1');
         const profileName = document.getElementById('user-name');
         const profileEmail = document.getElementById('user-email');
         const avatarInitials = document.getElementById('user-initials');
         
-        if (clientGreetingName) {
-            clientGreetingName.innerText = user.name;
+        // Check if the user is an admin or client
+        const isClient = user.email !== 'swathy.krishnan.dominar@gmail.com';
+        
+        if (greetingName) {
+            greetingName.innerHTML = `Welcome Back, ${user.name} 👋`;
         }
         
         if (profileName) {
@@ -34,13 +37,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (profileEmail) {
-            profileEmail.innerText = user.email;
+            profileEmail.innerText = isClient ? user.email : 'PV Studios';
         }
         
         if (avatarInitials) {
-            // Generate initials from client name
+            // Generate initials from user name
             const nameParts = user.name.split(' ');
-            let initials = 'PV';
+            let initials = 'AD';
             if (nameParts.length > 1) {
                 initials = (nameParts[0][0] + nameParts[1][0]).toUpperCase();
             } else if (nameParts.length === 1 && nameParts[0]) {
@@ -49,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             avatarInitials.innerText = initials;
         }
         
-        console.log(`[Session] Client session active: ${user.name} (${user.email})`);
+        console.log(`[Session] Admin/Client session active: ${user.name} (${user.email})`);
         
     } catch (err) {
         console.error('[Session] Error parsing active session:', err);
@@ -64,13 +67,43 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutTrigger.addEventListener('click', (e) => {
             e.preventDefault();
             
-            if (confirm('Are you sure you want to log out of your client portal?')) {
-                console.log('[Session] Logging out client...');
+            if (confirm('Are you sure you want to log out of the portal?')) {
+                console.log('[Session] Logging out...');
                 localStorage.removeItem('user_session');
                 window.location.href = 'index.html';
             }
         });
     }
+    
+    // Task Checklist Interactivity: Toggle checked/unchecked
+    const taskRows = document.querySelectorAll('.task-check-row');
+    taskRows.forEach(row => {
+        const checkbox = row.querySelector('.task-checkbox');
+        if (checkbox) {
+            row.addEventListener('click', () => {
+                const isChecked = checkbox.classList.toggle('checked');
+                if (isChecked) {
+                    checkbox.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+                } else {
+                    checkbox.innerHTML = '';
+                }
+            });
+        }
+    });
+
+    // Calendar Interactivity: Toggle active date cells
+    const dateCells = document.querySelectorAll('.date-cell');
+    dateCells.forEach(cell => {
+        cell.addEventListener('click', () => {
+            // Remove active from any currently highlighted cell
+            const currentActive = document.querySelector('.active-cal-day');
+            if (currentActive) {
+                currentActive.classList.remove('active-cal-day');
+            }
+            // Set current clicked day as active
+            cell.classList.add('active-cal-day');
+        });
+    });
     
     // Optional Search Trigger simulation (Cmd+K focus)
     window.addEventListener('keydown', (e) => {

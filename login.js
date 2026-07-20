@@ -587,7 +587,7 @@ const AuthController = {
                         this.showAlert('success', 'Access granted! Opening portal...');
                         localStorage.setItem('user_session', JSON.stringify(data.user));
                         setTimeout(() => {
-                            window.location.href = 'index.html';
+                            window.location.href = 'dashboard.html';
                         }, 1000);
                     }
                 } else {
@@ -630,7 +630,7 @@ const AuthController = {
                 localStorage.setItem('user_session', JSON.stringify(data.user));
                 
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.location.href = 'dashboard.html';
                 }, 1200);
             } else {
                 this.showAlert('error', data.message || 'Submission rejected.');

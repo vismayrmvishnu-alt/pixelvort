@@ -794,7 +794,7 @@ const UIController = {
             
             // Build the user profile badge markup
             ctaContainer.innerHTML = `
-                <div class="user-profile-badge">
+                <div class="user-profile-badge" id="user-profile-badge" style="cursor: pointer;">
                     <img src="${session.avatar || 'assets/logo.png'}" alt="Avatar" class="user-avatar">
                     <span class="user-name">${session.username}</span>
                     <button class="btn-logout" id="btn-logout" title="Log Out">
@@ -804,6 +804,14 @@ const UIController = {
                     </button>
                 </div>
             `;
+            
+            // Redirect to dashboard on badge click
+            const badge = document.getElementById('user-profile-badge');
+            if (badge) {
+                badge.addEventListener('click', () => {
+                    window.location.href = 'dashboard.html';
+                });
+            }
             
             // Setup logout click handler
             const btnLogout = document.getElementById('btn-logout');
